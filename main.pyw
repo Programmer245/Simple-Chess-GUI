@@ -53,7 +53,7 @@ class Game:
     def __create_pieces(self):
         'Creates all chess pieces'
 
-        for i in range(8):
+        for i in range(8): # Creates the panws
             position = f'{i}1'
             Pawn('black', position, self.chess_board)
         for i in range(8):
@@ -102,19 +102,24 @@ class Piece:
 
     piece_instances = [] # Stores all the piece instances
 
-    def __init__(self, side, position, canvas): # Canvas argument is canvas where pieces will be drawn
-        self.side = side # Specifies the side the piece is on (black or white)
-        self.position = position # Specifies the position of the piece on the board as string of 2 digits indicating the column as row such as 02 (column 0 row 2)
-        self.captured = False # Flag specifying if the piece has been captured
+    def __init__(self, side, position, canvas):
 
         Piece.piece_instances.append(self) # Adds the instance to the list of piece instances
 
-        self.draw_piece(canvas) # After each piece instance is created, it is automatically displayed
+        self.side = side # Specifies the side the piece is on (black or white)
+        self.position = position # Specifies the position of the piece on the board as string of 2 digits indicating the column as row such as 02 (column 0 row 2)
+        self.canvas = canvas # Stores the canvas where pieces will be drawn for easy reference
+        self.captured = False # Flag specifying if the piece has been captured
 
-    def draw_piece(self, canvas):
-        'Draws the piece on the board; takes canvas as argument'
+        self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_dictionary[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance
+        canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
 
-        self.text_object_id = canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_dictionary[self.identifier][self.side], font=('System', 60, 'bold')) # Stores the canvas text instance
+    def __moved(self, event):
+        'Handles chess piece mouse movements'
+
+        print(event.x//80, event.y//80)
+        self.canvas.coords(self.text_object_id, event.x, event.y)
+        # self.canvas.create_rectangle()
 
 class Pawn(Piece):
     'Child class that creates instances of pawns'

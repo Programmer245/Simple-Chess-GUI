@@ -62,3 +62,19 @@ ChangeLog:
 - Need to bind mouse actions to pieces
 
 /UNSTABLE BUILD/
+
+05/12/2020 - v0.4-alpha:
+
+*Added*
+
++ Removed __draw_piece method and implemented canvas text creation directly in __init method of Piece class
++ Bound mouse movement events to chess piees
++ Added __moved method for handling piece movement
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to add piece logic
+- Need to create rectangle around square chess piece is in and finish coding __moved method
+
+/UNSTABLE BUILD/
