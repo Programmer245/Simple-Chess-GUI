@@ -63,6 +63,8 @@ ChangeLog:
 
 /UNSTABLE BUILD/
 
+***
+
 05/12/2020 - v0.4-alpha:
 
 *Added*
@@ -76,5 +78,23 @@ ChangeLog:
 - Need to add all widgets in frames
 - Need to add piece logic
 - Need to create rectangle around square chess piece is in and finish coding __moved method
+
+/UNSTABLE BUILD/
+
+***
+
+06/12/2020 - v0.4.1-alpha:
+
+*Added*
+
++ Added __selected, __moved, and __released methods to handle different canvas events
++ Highlight box functionality partially implemented
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to add piece logic
+- PLEASE REFACTOR CODE, LOGIC IS TERRIBLE
+- Separate Piece class and its subclasses from main module
 
 /UNSTABLE BUILD/
