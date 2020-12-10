@@ -98,3 +98,22 @@ ChangeLog:
 - Separate Piece class and its subclasses from main module
 
 /UNSTABLE BUILD/
+
+***
+
+10/12/2020 - v0.5-alpha:
+
+*Added*
+
++ Added __create_highlight_box method
++ Refactored code that handles piece movement to improve logic
++ Added submodules constants.py and piece_classes.py to allow each section of code to be more easily modified
++ Updated .gitignore
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to add piece logic
+- Review code logic
+
+/UNSTABLE BUILD/
