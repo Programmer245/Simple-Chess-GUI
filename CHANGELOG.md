@@ -117,3 +117,20 @@ ChangeLog:
 - Review code logic
 
 /UNSTABLE BUILD/
+
+***
+
+14/12/2020 - v0.5.1-alpha:
+
+*Added*
+
++ When piece is released, it is automatically centred in square
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to add piece logic
+- Review code logic
+- Need to adjust code for moving piece beyond canvas or outside window
+
+/UNSTABLE BUILD/

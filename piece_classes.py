@@ -47,6 +47,7 @@ class Piece:
         'Handles releasing a piece'
 
         self.canvas.delete(self.highlight_box) # Deletes the previous highlight box
+        self.canvas.coords(self.text_object_id, (0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80) # When piece is released, it gets placed in the middle of the square automatically
 
     def __create_highlight_box(self, event=None):
         'Creates a highlight box around the square the piece is currently on'
