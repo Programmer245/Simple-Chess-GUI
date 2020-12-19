@@ -153,3 +153,18 @@ ChangeLog:
 - Need to adjust code for moving piece beyond canvas or outside window
 
 /UNSTABLE BUILD/
+
+***
+
+19/12/2020 - v0.5.3-alpha:
+
+*Added*
+
++ Updated __moved method so that piece position is reset if moved beyond chess board boundaries
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+
+/UNSTABLE BUILD/

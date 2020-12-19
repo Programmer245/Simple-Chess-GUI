@@ -33,16 +33,24 @@ class Piece:
     def __moved(self, event):
         'Handles piece being dragged across board'
 
-        temp = f'{event.x//80}{event.y//80}' # Temporary variable storing the piece position
+        try:
+            temp = f'{event.x//80}{event.y//80}' # Temporary variable storing the piece position
+            
+            if '-1' in temp or event.x > BOARD_SIZE or event.y > BOARD_SIZE: # Exception is raised if piece is outside of board boundaries
+                raise ValueError 
 
-        if self.position != temp: # Piece has been moved to a different square
-            self.position = temp # Updates position
-            self.canvas.delete(self.highlight_box) # Deletes previous highlight box
-            self.__create_highlight_box() # Creates new highlight box in new square
+            # If program gets to this point, then piece is stil inside the board
 
-        print(self.position)
+            if self.position != temp: # Piece has been moved to a different square
+                self.position = temp # Updates position
+                self.canvas.delete(self.highlight_box) # Deletes previous highlight box
+                self.__create_highlight_box() # Creates new highlight box in new square
+        except ValueError: # Piece is outside board
+            print('Invalid position')
+        finally: # Regardless of whether piece is outside board or not
+            print(self.position) # Prints out the square the piece is currently on
 
-        self.canvas.coords(self.text_object_id, event.x, event.y) # Allows piece to be moved by repositioning it on the canvas as mouse moves around
+            self.canvas.coords(self.text_object_id, event.x, event.y) # Allows piece to be moved by repositioning it on the canvas as mouse moves around
 
     def __clicked(self, event):
         'Handles piece being selected prior to being dragged'
@@ -57,7 +65,7 @@ class Piece:
 
         self.canvas.delete(self.highlight_box) # Deletes the previous highlight box
 
-        if not self.__possible_move(): # If the move is illegal
+        if not self.__possible_move(event): # If the move is illegal
             self.position = self.old_position # Resets the position of the piece
             
         self.canvas.coords(self.text_object_id, (0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80) # When piece is released, it gets placed in the middle of the square automatically
@@ -67,10 +75,13 @@ class Piece:
 
         self.highlight_box = self.canvas.create_rectangle(SQUARE_SIZE*int(self.position[0]), SQUARE_SIZE*int(self.position[1]), SQUARE_SIZE*int(self.position[0]) + SQUARE_SIZE, SQUARE_SIZE*int(self.position[1]) + SQUARE_SIZE, fill='', outline='blue', width=2) # Creates the highlight box over the square the selected piece is hovering on
 
-    def __possible_move(self):
+    def __possible_move(self, event):
         'Returns True or False depending on whether a move is legal or not'
 
-        return True
+        if event.x < 0 or event.x > BOARD_SIZE or event.y < 0 or event.y > BOARD_SIZE: # If piece is outside board it is an invalid move
+            return None 
+
+        return True # If passes all conditions, it is a valid move
 
 class Pawn(Piece):
     'Child class that creates instances of pawns'
