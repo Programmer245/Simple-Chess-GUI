@@ -134,3 +134,22 @@ ChangeLog:
 - Need to adjust code for moving piece beyond canvas or outside window
 
 /UNSTABLE BUILD/
+
+***
+
+16/12/2020 - v0.5.2-alpha:
+
+*Added*
+
++ Added __possible_move method for validating whether a move is possible
++ Added __clicked method for handling when piece is clicked
++ Refactored code
++ __released method now resets the position of the piece if move is illegal
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to add piece logic
+- Need to adjust code for moving piece beyond canvas or outside window
+
+/UNSTABLE BUILD/

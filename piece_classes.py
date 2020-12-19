@@ -27,32 +27,50 @@ class Piece:
 
         self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_dictionary[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance
         canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
-        canvas.tag_bind(self.text_object_id, '<Button-1>', self.__create_highlight_box) # Binds all pieces in the canvas to the create highlight box method when the mouse is clicked
+        canvas.tag_bind(self.text_object_id, '<Button-1>', self.__clicked) # Binds all pieces in the canvas to the clicked method when the mouse is clicked
         canvas.tag_bind(self.text_object_id, '<ButtonRelease-1>', self.__released) # Binds all pieces in the canvas to the selected method when the mouse is released
 
     def __moved(self, event):
         'Handles piece being dragged across board'
 
-        old_position = self.position # Stores old piece position
-        self.position = f'{event.x//80}{event.y//80}' # Updates position of piece
+        temp = f'{event.x//80}{event.y//80}' # Temporary variable storing the piece position
 
-        if self.position != old_position: # Piece has been moved to a different square
+        if self.position != temp: # Piece has been moved to a different square
+            self.position = temp # Updates position
             self.canvas.delete(self.highlight_box) # Deletes previous highlight box
             self.__create_highlight_box() # Creates new highlight box in new square
 
-        self.canvas.coords(self.text_object_id, event.x, event.y) # Allows piece to be moved by repositioning it on the canvas as mouse moves around
         print(self.position)
+
+        self.canvas.coords(self.text_object_id, event.x, event.y) # Allows piece to be moved by repositioning it on the canvas as mouse moves around
+
+    def __clicked(self, event):
+        'Handles piece being selected prior to being dragged'
+
+        self.old_position = self.position # Stores the old piece position
+        self.__create_highlight_box() # Creates the highlight box
 
     def __released(self, event):
         'Handles releasing a piece'
 
+        print('Released')
+
         self.canvas.delete(self.highlight_box) # Deletes the previous highlight box
+
+        if not self.__possible_move(): # If the move is illegal
+            self.position = self.old_position # Resets the position of the piece
+            
         self.canvas.coords(self.text_object_id, (0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80) # When piece is released, it gets placed in the middle of the square automatically
 
-    def __create_highlight_box(self, event=None):
+    def __create_highlight_box(self):
         'Creates a highlight box around the square the piece is currently on'
 
         self.highlight_box = self.canvas.create_rectangle(SQUARE_SIZE*int(self.position[0]), SQUARE_SIZE*int(self.position[1]), SQUARE_SIZE*int(self.position[0]) + SQUARE_SIZE, SQUARE_SIZE*int(self.position[1]) + SQUARE_SIZE, fill='', outline='blue', width=2) # Creates the highlight box over the square the selected piece is hovering on
+
+    def __possible_move(self):
+        'Returns True or False depending on whether a move is legal or not'
+
+        return True
 
 class Pawn(Piece):
     'Child class that creates instances of pawns'
