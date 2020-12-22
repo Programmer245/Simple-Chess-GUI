@@ -168,3 +168,21 @@ ChangeLog:
 - Need to update __possible_move method
 
 /UNSTABLE BUILD/
+
+***
+
+22/12/2020 - v0.5.4-alpha:
+
+*Added*
+
++ Renamed constants module to global_vars.py
++ Added allowed variable in Piece class for indicating which side is allowed to move
++ Players must now make alternating moves (first white then black etc.)
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- Need to add movement logic for pieces
+
+/UNSTABLE BUILD/

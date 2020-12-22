@@ -1,9 +1,11 @@
 '''Simple Chess Piece Class Module'''
 
-from constants import * # Imports the behavioural constants
+from global_vars import * # Imports some behavioural constants
 
 class Piece:
     'Parent class that defines the general behaviour of all chess pieces'
+
+    allowed = 'white' # Indicates which side is allowed to make a move
 
     piece_dictionary = {
             '':{'black':'\u265F', 'white':'\u2659'}, 
@@ -78,10 +80,17 @@ class Piece:
     def __possible_move(self, event):
         'Returns True or False depending on whether a move is legal or not'
 
-        if event.x < 0 or event.x > BOARD_SIZE or event.y < 0 or event.y > BOARD_SIZE: # If piece is outside board it is an invalid move
-            return None 
+        if self.side != Piece.allowed: # If piece is not allowed to make a move it is an invalid move
+            return False
 
-        return True # If passes all conditions, it is a valid move
+        if event.x < 0 or event.x > BOARD_SIZE or event.y < 0 or event.y > BOARD_SIZE: # If piece is outside board it is an invalid move
+            return False 
+
+        # If gets to this point, then it is a valid move
+
+        Piece.allowed = 'white' if Piece.allowed == 'black' else 'black' # Updates which side is allowed to move
+
+        return True 
 
 class Pawn(Piece):
     'Child class that creates instances of pawns'
