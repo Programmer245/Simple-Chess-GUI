@@ -7,6 +7,11 @@ class Piece:
 
     allowed = 'white' # Indicates which side is allowed to make a move
 
+    piece_opposites = {
+            'black':'white',
+            'white':'black'
+            }
+
     piece_dictionary = {
             '':{'black':'\u265F', 'white':'\u2659'}, 
             'R':{'black':'\u265C', 'white':'\u2656'}, 
@@ -80,15 +85,18 @@ class Piece:
     def __possible_move(self, event):
         'Returns True or False depending on whether a move is legal or not'
 
-        if self.side != Piece.allowed: # If piece is not allowed to make a move it is an invalid move
-            return False
-
         if event.x < 0 or event.x > BOARD_SIZE or event.y < 0 or event.y > BOARD_SIZE: # If piece is outside board it is an invalid move
             return False 
 
+        if self.side != Piece.allowed or self.position == self.old_position: # If player makes a move outside their turn or the piece is not moved to any new square it is an invalid move
+            return False
+
+        if not self.in_range(self.old_position, self.position): # If the square cannot be reached by piece it is an invalid move
+            return False
+
         # If gets to this point, then it is a valid move
 
-        Piece.allowed = 'white' if Piece.allowed == 'black' else 'black' # Updates which side is allowed to move
+        Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
 
         return True 
 
@@ -98,6 +106,47 @@ class Pawn(Piece):
     def __init__(self, side, position, canvas):
         self.identifier = '' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
+
+    def in_range(self, initial, final):
+        '''Returns True or False whether a target square is in movement range of piece
+        
+        Takes initial and final square position as arguments'''
+
+        if self.side == 'white': # White pawn
+            if final == f'{initial[0]}{int(initial[1])-1}': # If pawn if pushed up
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final: # Square is blocked by another piece
+                        return False 
+                return True # Square is empty
+
+            elif final == f'{int(initial[0])-1}{int(initial[1])-1}' or final == f'{int(initial[0])+1}{int(initial[1])-1}': # If pawn tries to take another piece diagonally
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final and piece.side =='black': # A piece is on the diagonal square
+                        return True
+                return False # Square is empty
+
+        else: # Black pawn 
+            if final == f'{initial[0]}{int(initial[1])+1}': # If pawn if pushed up
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final: # Square is blocked by another piece
+                        return False 
+                return True # Square is empty
+
+            elif final == f'{int(initial[0])+1}{int(initial[1])+1}' or final == f'{int(initial[0])-1}{int(initial[1])+1}': # If pawn tries to take another piece diagonally
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final and piece.side == 'white': # An enemy piece is on the diagonal square
+                        return True
+                return False # Square is empty
+
+        return False # Unreachable square
     
 class Rook(Piece):
     'Child class that creates instances of rooks'

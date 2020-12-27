@@ -186,3 +186,20 @@ ChangeLog:
 - Need to add movement logic for pieces
 
 /UNSTABLE BUILD/
+
+***
+
+27/12/2020 - v0.5.5-alpha:
+
+*Added*
+
++ Some behavioural fixes
++ Added in_range method for Pawn
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- Need to add En Passant for pawn and need to remove captured piece
+
+/UNSTABLE BUILD/
