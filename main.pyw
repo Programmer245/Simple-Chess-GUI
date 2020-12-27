@@ -49,7 +49,7 @@ class Game:
     def __create_pieces(self):
         'Creates all chess pieces'
 
-        for i in range(8): # Creates the panws
+        for i in range(8): # Creates the pawns
             position = f'{i}1'
             Pawn('black', position, self.chess_board)
         for i in range(8):

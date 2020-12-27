@@ -49,7 +49,7 @@ ChangeLog:
 
 *Added*
 
-+ Added Piece parent class and all other subclasses to define piece behaviour
++ Added Piece parent class and all other subclasses to define piece behavior
 + Added __create_pieces method for creating all the piece instances
 + Added empty __reset_pieces method for resetting all pieces to their original state
 + Added empty __draw_piece method for redrawing a particular piece 
@@ -70,7 +70,7 @@ ChangeLog:
 *Added*
 
 + Removed __draw_piece method and implemented canvas text creation directly in __init method of Piece class
-+ Bound mouse movement events to chess piees
++ Bound mouse movement events to chess pieces
 + Added __moved method for handling piece movement
 
 *Pending*
@@ -184,5 +184,25 @@ ChangeLog:
 - Need to add all widgets in frames
 - Need to update __possible_move method
 - Need to add movement logic for pieces
+
+/UNSTABLE BUILD/
+
+***
+
+27/12/2020 - v0.6-alpha:
+
+*Added*
+
++ Some behavioral fixes
++ Updated Pawn movement and functional behavior in in_range method
++ Refactored code
++ Added piece_opposites dictionary for ease of use
++ Spelling fixes
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- Need to add En Passant for pawn and need to remove captured piece
 
 /UNSTABLE BUILD/
