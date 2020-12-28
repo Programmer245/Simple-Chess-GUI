@@ -105,6 +105,8 @@ class Pawn(Piece):
 
     def __init__(self, side, position, canvas):
         self.identifier = '' # Identifier used for chess notation and to assign a unicode sequence to each piece
+        self.moved = False # Flag indicating whether piece has moved
+        self.en_passant = False # Flag indicating whether en passant can be done on the piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
     def in_range(self, initial, final):
@@ -113,12 +115,24 @@ class Pawn(Piece):
         Takes initial and final square position as arguments'''
 
         if self.side == 'white': # White pawn
-            if final == f'{initial[0]}{int(initial[1])-1}': # If pawn if pushed up
+            if not self.moved and final == f'{initial[0]}{int(initial[1])-2}': # If the pawn has not moved before and it is pushed twice
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final or piece.position == f'{initial[0]}{int(initial[1])-1}': # Path is blocked by another piece
+                        return False 
+                self.moved = True # Piece will have moved
+                self.en_passant = True # En passant can be done on the piece
+                return True # Move can be made
+
+            elif final == f'{initial[0]}{int(initial[1])-1}': # If pawn if pushed up
                 for piece in Piece.piece_instances: # Checks all the pieces
                     if piece == self: # Skips itself
                         continue
                     elif piece.position == final: # Square is blocked by another piece
                         return False 
+                self.moved = True # Piece will have moved
+                self.en_passant = False # En passant can no longer be done
                 return True # Square is empty
 
             elif final == f'{int(initial[0])-1}{int(initial[1])-1}' or final == f'{int(initial[0])+1}{int(initial[1])-1}': # If pawn tries to take another piece diagonally
@@ -126,16 +140,30 @@ class Pawn(Piece):
                     if piece == self: # Skips itself
                         continue
                     elif piece.position == final and piece.side =='black': # A piece is on the diagonal square
+                        self.moved = True # Piece has been moved
+                        self.en_passant = False # En passant can no longer be done
                         return True
                 return False # Square is empty
 
         else: # Black pawn 
-            if final == f'{initial[0]}{int(initial[1])+1}': # If pawn if pushed up
+            if not self.moved and final == f'{initial[0]}{int(initial[1])+2}': # If the pawn has not moved before and it is pushed twice
+                for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece == self: # Skips itself
+                        continue
+                    elif piece.position == final or piece.position == f'{initial[0]}{int(initial[1])+1}': # Path is blocked by another piece
+                        return False 
+                self.moved = True # Piece will have moved
+                self.en_passant = True # En passant can be done on the piece
+                return True # Move can be made
+
+            elif final == f'{initial[0]}{int(initial[1])+1}': # If pawn if pushed up
                 for piece in Piece.piece_instances: # Checks all the pieces
                     if piece == self: # Skips itself
                         continue
                     elif piece.position == final: # Square is blocked by another piece
                         return False 
+                self.moved = True # Piece will have moved
+                self.en_passant = False # En passant can no longer be done
                 return True # Square is empty
 
             elif final == f'{int(initial[0])+1}{int(initial[1])+1}' or final == f'{int(initial[0])-1}{int(initial[1])+1}': # If pawn tries to take another piece diagonally
@@ -143,6 +171,8 @@ class Pawn(Piece):
                     if piece == self: # Skips itself
                         continue
                     elif piece.position == final and piece.side == 'white': # An enemy piece is on the diagonal square
+                        self.moved = True # Piece will have moved
+                        self.en_passant = False # En passant can no longer be done
                         return True
                 return False # Square is empty
 

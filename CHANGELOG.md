@@ -206,3 +206,22 @@ ChangeLog:
 - Need to add En Passant for pawn and need to remove captured piece
 
 /UNSTABLE BUILD/
+
+***
+
+28/12/2020 - v0.6.1-alpha:
+
+*Added*
+
++ Double move behaviour for pawn added
++ Added self.moved and self.en_passant attributes to Pawn class
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- Need to add En Passant for pawn
+- Need to remove captured pieces from the board
+- Need to reuse in_range logic for both black and white pawns to simplify code
+
+/UNSTABLE BUILD/
