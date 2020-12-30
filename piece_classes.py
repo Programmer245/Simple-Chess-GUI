@@ -1,6 +1,7 @@
 '''Simple Chess Piece Class Module'''
 
 from global_vars import * # Imports some behavioral constants
+import operator # Used for piece movement behaviour
 
 class Piece:
     'Parent class that defines the general behavior of all chess pieces'
@@ -8,17 +9,17 @@ class Piece:
     allowed = 'white' # Indicates which side is allowed to make a move
 
     piece_opposites = {
-            'black':'white',
-            'white':'black'
+            'black': 'white',
+            'white': 'black'
             }
 
-    piece_dictionary = {
-            '':{'black':'\u265F', 'white':'\u2659'}, 
-            'R':{'black':'\u265C', 'white':'\u2656'}, 
-            'N':{'black':'\u265E', 'white':'\u2658'}, 
-            'B':{'black':'\u265D', 'white':'\u2657'}, 
-            'Q':{'black':'\u265B', 'white':'\u2655'}, 
-            'K':{'black':'\u265A', 'white':'\u2654'}
+    piece_unicode_identifiers = {
+            '': {'black': '\u265F', 'white': '\u2659'}, 
+            'R': {'black': '\u265C', 'white': '\u2656'}, 
+            'N': {'black': '\u265E', 'white': '\u2658'}, 
+            'B': {'black': '\u265D', 'white': '\u2657'}, 
+            'Q': {'black': '\u265B', 'white': '\u2655'}, 
+            'K': {'black': '\u265A', 'white': '\u2654'}
             } # Stores all the chess pieces and their unicode symbols
 
     piece_instances = [] # Stores all the piece instances
@@ -32,7 +33,7 @@ class Piece:
         self.canvas = canvas # Stores the canvas where pieces will be drawn for easy reference
         self.captured = False # Flag specifying if the piece has been captured
 
-        self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_dictionary[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance
+        self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_unicode_identifiers[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance
         canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
         canvas.tag_bind(self.text_object_id, '<Button-1>', self.__clicked) # Binds all pieces in the canvas to the clicked method when the mouse is clicked
         canvas.tag_bind(self.text_object_id, '<ButtonRelease-1>', self.__released) # Binds all pieces in the canvas to the selected method when the mouse is released
@@ -103,6 +104,11 @@ class Piece:
 class Pawn(Piece):
     'Child class that creates instances of pawns'
 
+    operators_dictionary = {
+            'white': operator.sub,
+            'black': operator.add
+            } # Stores arithmetic functions used in calculating pawn movement ranges
+
     def __init__(self, side, position, canvas):
         self.identifier = '' # Identifier used for chess notation and to assign a unicode sequence to each piece
         self.moved = False # Flag indicating whether piece has moved
@@ -114,68 +120,38 @@ class Pawn(Piece):
         
         Takes initial and final square position as arguments'''
 
-        if self.side == 'white': # White pawn
-            if not self.moved and final == f'{initial[0]}{int(initial[1])-2}': # If the pawn has not moved before and it is pushed twice
+        operator_fun = Pawn.operators_dictionary[self.side] # Stores the correct arithmetic function for the respective pawn being moved
+
+        if not self.moved and final == f'{initial[0]}{operator_fun(int(initial[1]), 2)}': # If the pawn has not moved before and it is pushed twice
                 for piece in Piece.piece_instances: # Checks all the pieces
                     if piece == self: # Skips itself
                         continue
-                    elif piece.position == final or piece.position == f'{initial[0]}{int(initial[1])-1}': # Path is blocked by another piece
+                    elif piece.position == final or piece.position == f'{initial[0]}{operator_fun(int(initial[1]), 1)}': # Path is blocked by another piece
                         return False 
-                self.moved = True # Piece will have moved
+                self.moved = True
                 self.en_passant = True # En passant can be done on the piece
                 return True # Move can be made
 
-            elif final == f'{initial[0]}{int(initial[1])-1}': # If pawn if pushed up
-                for piece in Piece.piece_instances: # Checks all the pieces
-                    if piece == self: # Skips itself
-                        continue
-                    elif piece.position == final: # Square is blocked by another piece
-                        return False 
-                self.moved = True # Piece will have moved
-                self.en_passant = False # En passant can no longer be done
-                return True # Square is empty
+        elif final == f'{initial[0]}{operator_fun(int(initial[1]), 1)}': # If pawn if pushed up
+            for piece in Piece.piece_instances: # Checks all the pieces
+                if piece == self: # Skips itself
+                    continue
+                elif piece.position == final: # Square is blocked by another piece
+                    return False 
+            self.moved = True
+            self.en_passant = False # En passant can no longer be done
+            return True # Square is empty
 
-            elif final == f'{int(initial[0])-1}{int(initial[1])-1}' or final == f'{int(initial[0])+1}{int(initial[1])-1}': # If pawn tries to take another piece diagonally
-                for piece in Piece.piece_instances: # Checks all the pieces
-                    if piece == self: # Skips itself
-                        continue
-                    elif piece.position == final and piece.side =='black': # A piece is on the diagonal square
-                        self.moved = True # Piece has been moved
-                        self.en_passant = False # En passant can no longer be done
-                        return True
-                return False # Square is empty
-
-        else: # Black pawn 
-            if not self.moved and final == f'{initial[0]}{int(initial[1])+2}': # If the pawn has not moved before and it is pushed twice
-                for piece in Piece.piece_instances: # Checks all the pieces
-                    if piece == self: # Skips itself
-                        continue
-                    elif piece.position == final or piece.position == f'{initial[0]}{int(initial[1])+1}': # Path is blocked by another piece
-                        return False 
-                self.moved = True # Piece will have moved
-                self.en_passant = True # En passant can be done on the piece
-                return True # Move can be made
-
-            elif final == f'{initial[0]}{int(initial[1])+1}': # If pawn if pushed up
-                for piece in Piece.piece_instances: # Checks all the pieces
-                    if piece == self: # Skips itself
-                        continue
-                    elif piece.position == final: # Square is blocked by another piece
-                        return False 
-                self.moved = True # Piece will have moved
-                self.en_passant = False # En passant can no longer be done
-                return True # Square is empty
-
-            elif final == f'{int(initial[0])+1}{int(initial[1])+1}' or final == f'{int(initial[0])-1}{int(initial[1])+1}': # If pawn tries to take another piece diagonally
-                for piece in Piece.piece_instances: # Checks all the pieces
-                    if piece == self: # Skips itself
-                        continue
-                    elif piece.position == final and piece.side == 'white': # An enemy piece is on the diagonal square
-                        self.moved = True # Piece will have moved
-                        self.en_passant = False # En passant can no longer be done
-                        return True
-                return False # Square is empty
-
+        elif final == f'{int(initial[0])-1}{operator_fun(int(initial[1]), 1)}' or final == f'{int(initial[0])+1}{operator_fun(int(initial[1]), 1)}': # If pawn tries to take another piece directly or by en passant
+            for piece in Piece.piece_instances: # Checks all the pieces
+                if piece == self or self.side == piece.side: # Skips itself or any friendly piece
+                    continue
+                elif piece.position == final or (piece.position == f'{final[0]}{initial[1]}' and not piece.identifier and piece.en_passant): # An enemy piece is on the diagonal square or an enemy pawn is on either side with en passant enabled
+                    self.moved = True
+                    self.en_passant = False # En passant can no longer be done
+                    return True
+            # If gets to this point, there is no piece that can be captured and en passant cannot be done
+            
         return False # Unreachable square
     
 class Rook(Piece):

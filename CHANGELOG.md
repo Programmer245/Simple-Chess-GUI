@@ -225,3 +225,23 @@ ChangeLog:
 - Need to reuse in_range logic for both black and white pawns to simplify code
 
 /UNSTABLE BUILD/
+
+***
+
+30/12/2020 - v0.6.2-alpha:
+
+*Added*
+
++ Imported operators module for better code structure
++ Added operators dictionary for storing different artithmetic functions to be used depending on the color of the piece being moved
++ Refactored code
++ En passant feature added
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- Need to remove captured pieces from the board
+- If any other move is made after a piece is pushed twice, en passant cannot happen anymore
+
+/UNSTABLE BUILD/
