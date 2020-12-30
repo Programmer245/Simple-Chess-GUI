@@ -92,10 +92,17 @@ class Piece:
         if self.side != Piece.allowed or self.position == self.old_position: # If player makes a move outside their turn or the piece is not moved to any new square it is an invalid move
             return False
 
-        if not self.in_range(self.old_position, self.position): # If the square cannot be reached by piece it is an invalid move
-            return False
+        # If gets to this point, piece has been released inside chess board
 
-        # If gets to this point, then it is a valid move
+        return_value = self.in_range(self.old_position, self.position) # Stores return value which may be True, False, or instance of captured piece
+
+        if not return_value: # If square cannot be reached by piece it is an invalid move (return_value == False)
+            return False
+        elif isinstance(return_value, Piece): # If a piece has been captured (return_value is instance of Piece)
+            self.canvas.delete(return_value.text_object_id) # Removes captured piece from board
+            Piece.piece_instances.remove(return_value) # Removes captured piece from list of pieces
+
+        # If gets to this point, then it is a valid move (return_value == True)
 
         Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
 
@@ -116,7 +123,7 @@ class Pawn(Piece):
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
     def in_range(self, initial, final):
-        '''Returns True or False whether a target square is in movement range of piece
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
         
         Takes initial and final square position as arguments'''
 
@@ -149,7 +156,7 @@ class Pawn(Piece):
                 elif piece.position == final or (piece.position == f'{final[0]}{initial[1]}' and not piece.identifier and piece.en_passant): # An enemy piece is on the diagonal square or an enemy pawn is on either side with en passant enabled
                     self.moved = True
                     self.en_passant = False # En passant can no longer be done
-                    return True
+                    return piece # Enemy piece can be captured
             # If gets to this point, there is no piece that can be captured and en passant cannot be done
             
         return False # Unreachable square
@@ -167,6 +174,24 @@ class Knight(Piece):
     def __init__(self, side, position, canvas):
         self.identifier = 'N' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
+
+    def in_range(self, initial, final):
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
+        
+        Takes initial and final square position as arguments'''
+
+        if (abs(int(final[0])-int(initial[0])) == 1 and abs(int(final[1])-int(initial[1])) == 2) or (abs(int(final[0])-int(initial[0])) == 2 and abs(int(final[1])-int(initial[1])) == 1): # If knight moves in an L shape
+            for piece in Piece.piece_instances: # Checks all the pieces
+                if piece == self: # Skips itself or any friendly piece
+                    continue
+                elif piece.position == final: # Square is blocked by another piece
+                    if self.side == piece.side: # Square blocked by friendly piece
+                        return False
+                    else:
+                        return piece # Enemy piece can be captured
+            return True # Square is empty
+
+        return False # Unreachable square
 
 class Bishop(Piece):
     'Child class that creates instances of bishops'

@@ -245,3 +245,22 @@ ChangeLog:
 - If any other move is made after a piece is pushed twice, en passant cannot happen anymore
 
 /UNSTABLE BUILD/
+
+***
+
+30/12/2020 - v0.6.3-alpha:
+
+*Added*
+
++ Captured pieces are removed from the board
++ Updated Knight movement and functional behaviour
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to update __possible_move method
+- If any other move is made after a piece is pushed twice, en passant cannot happen anymore
+- Need to promote pawn to queen if end is reached
+- Need to ensure reveal check does not happen
+
+/UNSTABLE BUILD/
