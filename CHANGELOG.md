@@ -264,3 +264,22 @@ ChangeLog:
 - Need to ensure reveal check does not happen
 
 /UNSTABLE BUILD/
+
+***
+
+01/01/2021 - v0.6.4-alpha:
+
+*Added*
+
++ If any move is made, en passant is disabled
++ Added empty promote method for promoting pawn instance to another piece
++ Refactored code
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to ensure reveal check does not happen
+- Need to update promote method for pawn
+- Need to review logic in __release method. Same player can move twice by keep moving a piece
+
+/UNSTABLE BUILD/

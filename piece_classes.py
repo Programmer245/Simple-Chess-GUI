@@ -30,10 +30,10 @@ class Piece:
 
         self.side = side # Specifies the side the piece is on (black or white)
         self.position = position # Specifies the position of the piece on the board as string of 2 digits indicating the column as row such as 02 (column 0 row 2)
-        self.canvas = canvas # Stores the canvas where pieces will be drawn for easy reference
-        self.captured = False # Flag specifying if the piece has been captured
+        self.canvas = canvas # Canvas where piece will be displayed
 
-        self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80, text=Piece.piece_unicode_identifiers[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance
+        self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*SQUARE_SIZE, (0.5+int(self.position[1]))*SQUARE_SIZE, text=Piece.piece_unicode_identifiers[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance representing the piece
+        
         canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
         canvas.tag_bind(self.text_object_id, '<Button-1>', self.__clicked) # Binds all pieces in the canvas to the clicked method when the mouse is clicked
         canvas.tag_bind(self.text_object_id, '<ButtonRelease-1>', self.__released) # Binds all pieces in the canvas to the selected method when the mouse is released
@@ -73,10 +73,26 @@ class Piece:
 
         self.canvas.delete(self.highlight_box) # Deletes the previous highlight box
 
-        if not self.__possible_move(event): # If the move is illegal
+        return_value = self.__possible_move(event)
+
+        if not return_value: # If the move is illegal
             self.position = self.old_position # Resets the position of the piece
             
+        # If code does not go into if statement above, the move is legal and the position of the piece does not get reset
         self.canvas.coords(self.text_object_id, (0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80) # When piece is released, it gets placed in the middle of the square automatically
+
+        if isinstance(return_value, Piece): # If a piece has been captured
+            self.canvas.delete(return_value.text_object_id) # Deletes captured piece from board
+            Piece.piece_instances.remove(return_value) # Removes captured piece from list of pieces on the board
+
+        if not self.identifier and Pawn.operators_dictionary[Piece.piece_opposites[self.side]](int(self.position[1]), 4) == 4: # Pawn has reached end of the board
+            print('Promote pawn')
+
+        Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
+
+        for piece in Piece.piece_instances: # En passant can no longer be done by any pawn
+            if not piece.identifier: 
+                piece.en_passant = False 
 
     def __create_highlight_box(self):
         'Creates a highlight box around the square the piece is currently on'
@@ -99,14 +115,9 @@ class Piece:
         if not return_value: # If square cannot be reached by piece it is an invalid move (return_value == False)
             return False
         elif isinstance(return_value, Piece): # If a piece has been captured (return_value is instance of Piece)
-            self.canvas.delete(return_value.text_object_id) # Removes captured piece from board
-            Piece.piece_instances.remove(return_value) # Removes captured piece from list of pieces
+            return return_value
 
-        # If gets to this point, then it is a valid move (return_value == True)
-
-        Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
-
-        return True 
+        return True # If gets to this point, then it is a valid move but no piece has been captured (return_value == True)
 
 class Pawn(Piece):
     'Child class that creates instances of pawns'
@@ -160,6 +171,11 @@ class Pawn(Piece):
             # If gets to this point, there is no piece that can be captured and en passant cannot be done
             
         return False # Unreachable square
+
+    def promote(self, piece_class):
+        'Promotes a pawn instance to another piece; takes piece class as argument'
+
+        pass
     
 class Rook(Piece):
     'Child class that creates instances of rooks'
