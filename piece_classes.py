@@ -1,7 +1,10 @@
 '''Simple Chess Piece Class Module'''
 
 from global_vars import * # Imports some behavioral constants
-import operator # Used for piece movement behaviour
+
+import operator # Used for piece movement behavior
+
+import copy # Used for saving state of piece instances
 
 class Piece:
     'Parent class that defines the general behavior of all chess pieces'
@@ -73,26 +76,24 @@ class Piece:
 
         self.canvas.delete(self.highlight_box) # Deletes the previous highlight box
 
-        return_value = self.__possible_move(event)
+        return_value = self.__possible_move(event) # Stores return value which may be True, False, or instance of captured piece
 
-        if not return_value: # If the move is illegal
+        if not return_value: # If the move is invalid
             self.position = self.old_position # Resets the position of the piece
+        else: # Move is valid and reveal check does not occur
+            Pawn.disable_en_passant() # Disables en passant for all pawns
+
+            if 'adjust' in dir(self): # If instance has method adjust
+                self.adjust() # Adjusts attributes
+
+            if isinstance(return_value, Piece): # If a piece has been captured
+                self.canvas.delete(return_value.text_object_id) # Deletes captured piece from board
+                Piece.piece_instances.remove(return_value) # Removes captured piece from list of pieces on the board
+
+            Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
             
         # If code does not go into if statement above, the move is legal and the position of the piece does not get reset
         self.canvas.coords(self.text_object_id, (0.5+int(self.position[0]))*80, (0.5+int(self.position[1]))*80) # When piece is released, it gets placed in the middle of the square automatically
-
-        if isinstance(return_value, Piece): # If a piece has been captured
-            self.canvas.delete(return_value.text_object_id) # Deletes captured piece from board
-            Piece.piece_instances.remove(return_value) # Removes captured piece from list of pieces on the board
-
-        if not self.identifier and Pawn.operators_dictionary[Piece.piece_opposites[self.side]](int(self.position[1]), 4) == 4: # Pawn has reached end of the board
-            print('Promote pawn')
-
-        Piece.allowed = Piece.piece_opposites[Piece.allowed] # Updates the side that is allowed to make a move
-
-        for piece in Piece.piece_instances: # En passant can no longer be done by any pawn
-            if not piece.identifier: 
-                piece.en_passant = False 
 
     def __create_highlight_box(self):
         'Creates a highlight box around the square the piece is currently on'
@@ -110,15 +111,18 @@ class Piece:
 
         # If gets to this point, piece has been released inside chess board
 
+        pieces_copy = copy.copy(Piece.piece_instances) # Makes a copy of piece instances
+
         return_value = self.in_range(self.old_position, self.position) # Stores return value which may be True, False, or instance of captured piece
 
-        if not return_value: # If square cannot be reached by piece it is an invalid move (return_value == False)
+        if not return_value: # Square cannot be reached
             return False
-        elif isinstance(return_value, Piece): # If a piece has been captured (return_value is instance of Piece)
-            return return_value
-
-        return True # If gets to this point, then it is a valid move but no piece has been captured (return_value == True)
-
+        else: # Square can be reached
+            if isinstance(return_value, Piece): # If a piece can be captured by move
+                pieces_copy.remove(return_value) # Removes the piece from the pieces_copy temporary environment
+            if not King.checked(self.side, pieces_copy): # If reveal check does not occur value is returned
+                return return_value
+        
 class Pawn(Piece):
     'Child class that creates instances of pawns'
 
@@ -138,35 +142,29 @@ class Pawn(Piece):
         
         Takes initial and final square position as arguments'''
 
-        operator_fun = Pawn.operators_dictionary[self.side] # Stores the correct arithmetic function for the respective pawn being moved
+        self.operator_fun = Pawn.operators_dictionary[self.side] # Stores the correct arithmetic function for the respective pawn being moved
 
-        if not self.moved and final == f'{initial[0]}{operator_fun(int(initial[1]), 2)}': # If the pawn has not moved before and it is pushed twice
+        if not self.moved and final == f'{initial[0]}{self.operator_fun(int(initial[1]), 2)}': # If the pawn has not moved before and it is pushed twice
                 for piece in Piece.piece_instances: # Checks all the pieces
                     if piece == self: # Skips itself
                         continue
-                    elif piece.position == final or piece.position == f'{initial[0]}{operator_fun(int(initial[1]), 1)}': # Path is blocked by another piece
+                    elif piece.position == final or piece.position == f'{initial[0]}{self.operator_fun(int(initial[1]), 1)}': # Path is blocked by another piece
                         return False 
-                self.moved = True
-                self.en_passant = True # En passant can be done on the piece
                 return True # Move can be made
 
-        elif final == f'{initial[0]}{operator_fun(int(initial[1]), 1)}': # If pawn if pushed up
+        elif final == f'{initial[0]}{self.operator_fun(int(initial[1]), 1)}': # If pawn if pushed up
             for piece in Piece.piece_instances: # Checks all the pieces
                 if piece == self: # Skips itself
                     continue
                 elif piece.position == final: # Square is blocked by another piece
                     return False 
-            self.moved = True
-            self.en_passant = False # En passant can no longer be done
             return True # Square is empty
 
-        elif final == f'{int(initial[0])-1}{operator_fun(int(initial[1]), 1)}' or final == f'{int(initial[0])+1}{operator_fun(int(initial[1]), 1)}': # If pawn tries to take another piece directly or by en passant
+        elif final == f'{int(initial[0])-1}{self.operator_fun(int(initial[1]), 1)}' or final == f'{int(initial[0])+1}{self.operator_fun(int(initial[1]), 1)}': # If pawn tries to take another piece directly or by en passant
             for piece in Piece.piece_instances: # Checks all the pieces
                 if piece == self or self.side == piece.side: # Skips itself or any friendly piece
                     continue
                 elif piece.position == final or (piece.position == f'{final[0]}{initial[1]}' and not piece.identifier and piece.en_passant): # An enemy piece is on the diagonal square or an enemy pawn is on either side with en passant enabled
-                    self.moved = True
-                    self.en_passant = False # En passant can no longer be done
                     return piece # Enemy piece can be captured
             # If gets to this point, there is no piece that can be captured and en passant cannot be done
             
@@ -176,6 +174,24 @@ class Pawn(Piece):
         'Promotes a pawn instance to another piece; takes piece class as argument'
 
         pass
+
+    def adjust(self):
+        'Adjusts some attributes after a successful move'
+
+        if Pawn.operators_dictionary[Piece.piece_opposites[self.side]](int(self.position[1]), 4) == 4: # Pawn has reached end of the board
+                print('Promote pawn')
+
+        if self.position == f'{self.old_position[0]}{self.operator_fun(int(self.old_position[1]), 2)}': # If pawn pushed twice
+            self.en_passant = True # En passant enabled for the pawn
+
+        self.moved = True # Piece has been moved
+
+    @staticmethod
+    def disable_en_passant():
+        'Disables en passant for all pawns'
+        for piece in Piece.piece_instances:
+            if not piece.identifier:
+                piece.en_passant = False # Disables en passant for all pawns
     
 class Rook(Piece):
     'Child class that creates instances of rooks'
@@ -229,3 +245,21 @@ class King(Piece):
     def __init__(self, side, position, canvas):
         self.identifier = 'K' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
+
+    @staticmethod
+    def checked(side, environment=Piece.piece_instances):
+        '''Returns True or False if king of color side is being checked
+        
+        Environment argument is list of pieces being examined. Default argument can be overwritten'''
+
+        return False # Temporary return False
+
+        for piece in environment: 
+            if piece.identifier == 'K' and piece.side == side: 
+                king_position = piece.position # Stores position of king
+                for piece in environment:
+                    if piece.identifier != 'K': # Piece must not be a king
+                        return_value = piece.in_range(piece.position, king.position)
+                        if isinstance(return_value, Piece): # If piece can 'capture' the king then it is in check
+                            return True
+                return False # King is not in range of any piece and is not checked

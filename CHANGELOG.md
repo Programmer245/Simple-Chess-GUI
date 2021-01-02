@@ -213,7 +213,7 @@ ChangeLog:
 
 *Added*
 
-+ Double move behaviour for pawn added
++ Double move behavior for pawn added
 + Added self.moved and self.en_passant attributes to Pawn class
 
 *Pending*
@@ -233,7 +233,7 @@ ChangeLog:
 *Added*
 
 + Imported operators module for better code structure
-+ Added operators dictionary for storing different artithmetic functions to be used depending on the color of the piece being moved
++ Added operators dictionary for storing different arithmetic functions to be used depending on the color of the piece being moved
 + Refactored code
 + En passant feature added
 
@@ -253,7 +253,7 @@ ChangeLog:
 *Added*
 
 + Captured pieces are removed from the board
-+ Updated Knight movement and functional behaviour
++ Updated Knight movement and functional behavior
 
 *Pending*
 
@@ -281,5 +281,27 @@ ChangeLog:
 - Need to ensure reveal check does not happen
 - Need to update promote method for pawn
 - Need to review logic in __release method. Same player can move twice by keep moving a piece
+
+/UNSTABLE BUILD/
+
+***
+
+02/01/2021 - v0.6.5-alpha-exp:
+
+*Added*
+
++ Added Experimental Branch
++ Imported copy module for saving piece instance states
++ Added checked static method in King class
++ Added disable en_passant method in Pawn class
++ Added adjust method in Pawn class for adjusting specific attributes after a successful move
++ Major code refactor
++ Fixed same player can move twice bug
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to finish movement behavior for rook, bishop, queen, and king
+- Need to update promote method for pawn
 
 /UNSTABLE BUILD/
