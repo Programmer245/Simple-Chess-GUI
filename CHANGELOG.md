@@ -305,3 +305,20 @@ ChangeLog:
 - Need to update promote method for pawn
 
 /UNSTABLE BUILD/
+
+***
+
+02/01/2021 - v0.6.6-alpha-exp:
+
+*Added*
+
++ Updated Bishop movement and functional behavior
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to finish movement behavior for rook, queen, and king
+- Need to update promote method for pawn
+- Need to double check piece behavioral logic and add a way for queen to utilize rook and bishop behavioral methods
+
+/UNSTABLE BUILD/

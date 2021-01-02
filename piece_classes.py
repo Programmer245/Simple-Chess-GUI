@@ -214,9 +214,7 @@ class Knight(Piece):
 
         if (abs(int(final[0])-int(initial[0])) == 1 and abs(int(final[1])-int(initial[1])) == 2) or (abs(int(final[0])-int(initial[0])) == 2 and abs(int(final[1])-int(initial[1])) == 1): # If knight moves in an L shape
             for piece in Piece.piece_instances: # Checks all the pieces
-                if piece == self: # Skips itself or any friendly piece
-                    continue
-                elif piece.position == final: # Square is blocked by another piece
+                if piece != self and piece.position == final: # Square is blocked by another piece
                     if self.side == piece.side: # Square blocked by friendly piece
                         return False
                     else:
@@ -231,6 +229,32 @@ class Bishop(Piece):
     def __init__(self, side, position, canvas):
         self.identifier = 'B' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
+
+    def in_range(self, initial, final):
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
+        
+        Takes initial and final square position as arguments'''
+
+        if abs(int(final[0])-int(initial[0])) == abs(int(final[1])-int(initial[1])): # If final square is on the same diagonal as the bishop
+            horizontal_operator = operator.add if int(final[0]) > int(initial[0]) else operator.sub # Stores the appropriate operator depending on the circumstance
+            vertical_operator = operator.add if int(final[1]) > int(initial[1]) else operator.sub
+            
+            for i in range(1, abs(int(final[0])-int(initial[0]))): # Finds every square on the appropriate diagonal up to the target square
+                intermediate_pos = f'{horizontal_operator(int(initial[0]), i)}{vertical_operator(int(initial[1]), i)}'
+                
+                for piece in Piece.piece_instances: # Checks all pieces
+                    if piece != self and piece.position == intermediate_pos: # If any piece is in the way of bishop
+                        return False # Square is blocked and cannot be reached
+
+            for piece in Piece.piece_instances: # Checks all the pieces
+                if piece != self and piece.position == final: # Square is blocked by another piece
+                    if self.side == piece.side: # Square blocked by friendly piece
+                        return False
+                    else:
+                        return piece # Enemy piece can be captured
+            return True # Square is empty
+
+        return False # Unreachable square
 
 class Queen(Piece):
     'Child class that creates instances of queens'
