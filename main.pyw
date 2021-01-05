@@ -1,7 +1,25 @@
 '''Simple Chess Main Module'''
 
 import tkinter
+
 from piece_classes import * # Imports all the piece classes (including constants.py)
+
+from PIL import ImageTk, Image # Image processing library
+
+### DEFINING THE ROOT (MUST BE DEFINED BEFORE PHOTOIMAGE OBJECT IS CREATED)
+
+root = tkinter.Tk() # Defines main window
+root.title('Simple Chess') # Sets window title
+root.iconbitmap(r'resources/chess_icon.ico') # Sets window icon
+root.resizable('False', 'False') # Disables window resizing
+
+chess_img = Image.open(r'resources\chess_img.png') # Opens the image
+chess_img = chess_img.resize((150, 150), Image.ANTIALIAS) # Resizes the opened photo before converting it into a PhotoImage
+chess_img = ImageTk.PhotoImage(chess_img) # Converts image into a PhotoImage
+
+reset_arrow = Image.open(r'resources\reset_arrow.png')
+reset_arrow = reset_arrow.resize((90, 70), Image.ANTIALIAS)
+reset_arrow = ImageTk.PhotoImage(reset_arrow)
 
 ### MAIN CLASS
 
@@ -35,8 +53,29 @@ class Game:
         ### RIGHT FRAME
 
         self.right_frame = tkinter.Frame(self.parent, bg='lightpink', width=300, height=300)
+        self.imageLabel = tkinter.Label(self.right_frame, image=chess_img, relief='solid', bd=2, bg='yellow') # Label with the image
+        self.move_tracker = tkinter.Listbox(self.right_frame, selectmode=tkinter.SINGLE, width=40, height=23) # Chess move tracker
+        self.reset_button = tkinter.Button(self.right_frame, image=reset_arrow, relief='flat', state=tkinter.DISABLED, command=self.__reset) # Reset button
+        self.win_label = tkinter.Label(self.right_frame, text='White wins by checkmate') # Label that displays who has won the game
 
         self.right_frame.grid(row=0, column=1)
+        self.imageLabel.grid(row=0, column=0, columnspan=2, pady=(10,0))
+        self.move_tracker.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+        self.reset_button.grid(row=2, column=1)
+        self.win_label.grid(row=3, column=0, columnspan=2, pady=(0,10))
+
+        ### ### PROMOTION BUTTONS LABEL FRAME
+        self.promotion_buttons_frame = tkinter.LabelFrame(self.right_frame, text='Promotion') # Promotion button label frame containing all the promotion buttons
+        self.knight_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2654', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
+        self.bishop_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2657', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
+        self.rook_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2656', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
+        self.queen_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2655', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
+
+        self.promotion_buttons_frame.grid(row=2, column=0, pady=(0,10))
+        self.knight_promotion_btn.grid(row=0, column=0)
+        self.bishop_promotion_btn.grid(row=0, column=1)
+        self.rook_promotion_btn.grid(row=1, column=0)
+        self.queen_promotion_btn.grid(row=1, column=1)
 
     def __draw_board(self):
         'Draws the chess board'
@@ -77,17 +116,12 @@ class Game:
         King('black', '40', self.chess_board) # Creates the kings
         King('white', '37', self.chess_board)
 
-    def __reset_pieces(self):
-        'Resets the chess pieces to their original states'
+    def __reset(self):
+        'Resets the game'
 
         pass
 
 ### WINDOW INSTANCE CREATED
-
-root = tkinter.Tk() # Defines main window
-root.title('Simple Chess') # Sets window title
-root.iconbitmap(r'resources/chess_icon.ico') # Sets window icon
-root.resizable('False', 'False') # Disables window resizing
 
 Game(root) # Creates window
 
