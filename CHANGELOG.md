@@ -322,3 +322,22 @@ ChangeLog:
 - Need to double check piece behavioral logic and add a way for queen to utilize rook and bishop behavioral methods
 
 /UNSTABLE BUILD/
+
+***
+
+05/01/2021 - v0.6.7-alpha:
+
+*Added*
+
++ Merged Experimental_Branch with master branch; v0.6.5-alpha-exp and v0.6.6-alpha-exp changed to v0.6.5-alpha and v0.6.6-alpha
++ Deleted Experimental_Branch
++ Updated Rook movement and functional behavior
++ Updated Queen movement and functional behavior
+
+*Pending*
+
+- Need to add all widgets in frames
+- Need to finish movement behavior for king
+- Need to update promote method for pawn
+
+/UNSTABLE BUILD/

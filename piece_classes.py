@@ -200,6 +200,35 @@ class Rook(Piece):
         self.identifier = 'R' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
+    def in_range(self, initial, final):
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
+        
+        Takes initial and final square position as arguments'''
+
+        horizontal_diff = int(final[0])-int(initial[0]) # Stores the difference between initial and final x
+        vertical_diff = int(final[1])-int(initial[1]) # Stores the difference between initial and final y
+
+        if horizontal_diff == 0 or vertical_diff == 0: # If final square is on the same row/column as the rook
+            if horizontal_diff == 0: # If final square is in same column
+                operator_fun = operator.add if int(final[1]) > int(initial[1]) else operator.sub # Stores the appropriate operator depending on the circumstance
+                for i in range(1, abs(vertical_diff)): # Finds every square on the appropriate column up to the target square
+                    intermediate_pos = f'{initial[0]}{operator_fun(int(initial[1]), i)}'
+
+            elif vertical_diff == 0: # If final square is in same row
+                operator_fun = operator.add if int(final[0]) > int(initial[0]) else operator.sub # Stores the appropriate operator depending on the circumstance
+                for i in range(1, abs(horizontal_diff)): # Finds every square on the appropriate row up to the target square
+                    intermediate_pos = f'{operator_fun(int(initial[0]), i)}{initial[1]}'
+
+            for piece in Piece.piece_instances: # Checks all the pieces
+                    if piece != self and piece.position == final: # Square is blocked by another piece
+                        if self.side == piece.side: # Square blocked by friendly piece
+                            return False
+                        else:
+                            return piece # Enemy piece can be captured
+            return True # Square is empty
+
+        return False # Unreachable square
+
 class Knight(Piece):
     'Child class that creates instances of knights'
 
@@ -263,12 +292,36 @@ class Queen(Piece):
         self.identifier = 'Q' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
+    def in_range(self, initial, final):
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
+        
+        Takes initial and final square position as arguments; inherits linear and diagonal movement from rook and bishop'''
+
+        # Queen inherits movement from both the rook and the bishop
+
+        linear_movement = Rook.in_range(self, initial, final) # Stores return value of possible horizontal movement for the queen
+        diagonal_movement = Bishop.in_range(self, initial, final) # Stores return value of possible diagonal movement for the queen
+
+        if linear_movement: # If returns True or instance of captured piece from linear movement inherited from rook
+            return linear_movement
+        elif diagonal_movement: # If returns True or instance of captured piece from diagonal movement inherited from bishop
+            return diagonal_movement
+        
+        return False # Unreachable square
+
 class King(Piece):
     'Child class that creates instances of kings'
 
     def __init__(self, side, position, canvas):
         self.identifier = 'K' # Identifier used for chess notation and to assign a unicode sequence to each piece
         super().__init__(side, position, canvas) # Inherits the parent class attributes
+
+    def in_range(self, initial, final):
+        '''Returns True for possible move, False for impossible move, or instance of captured piece
+        
+        Takes initial and final square position as arguments'''
+
+        pass
 
     @staticmethod
     def checked(side, environment=Piece.piece_instances):
