@@ -2,8 +2,8 @@
 
 from global_vars import * # Imports some behavioral constants
 
+import tkinter
 import operator # Used for piece movement behavior
-
 import copy # Used for saving state of piece instances
 
 class Piece:
@@ -27,19 +27,27 @@ class Piece:
 
     piece_instances = [] # Stores all the piece instances
 
-    def __init__(self, side, position, canvas):
+    def __init__(self, side, position, parent):
+        '''
+        Init method for Piece class
+
+        Takes side of piece (black or white)
+        Takes initial position of piece (string of format colrow)
+        Takes parent widget where pieces will be displayed
+        '''
 
         Piece.piece_instances.append(self) # Adds the instance to the list of piece instances
 
         self.side = side # Specifies the side the piece is on (black or white)
         self.position = position # Specifies the position of the piece on the board as string of 2 digits indicating the column as row such as 02 (column 0 row 2)
-        self.canvas = canvas # Canvas where piece will be displayed
+        self.parent = parent # Specifies the parent GUI
+        self.canvas = parent.chess_board # Canvas where piece will be displayed
 
         self.text_object_id = self.canvas.create_text((0.5+int(self.position[0]))*SQUARE_SIZE, (0.5+int(self.position[1]))*SQUARE_SIZE, text=Piece.piece_unicode_identifiers[self.identifier][self.side], font=('System', 55, 'bold')) # Stores the canvas text instance representing the piece
         
-        canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
-        canvas.tag_bind(self.text_object_id, '<Button-1>', self.__clicked) # Binds all pieces in the canvas to the clicked method when the mouse is clicked
-        canvas.tag_bind(self.text_object_id, '<ButtonRelease-1>', self.__released) # Binds all pieces in the canvas to the selected method when the mouse is released
+        self.canvas.tag_bind(self.text_object_id, '<B1-Motion>', self.__moved) # Binds all pieces in the canvas to the moved method when the mouse is held and moved
+        self.canvas.tag_bind(self.text_object_id, '<Button-1>', self.__clicked) # Binds all pieces in the canvas to the clicked method when the mouse is clicked
+        self.canvas.tag_bind(self.text_object_id, '<ButtonRelease-1>', self.__released) # Binds all pieces in the canvas to the selected method when the mouse is released
 
     def __moved(self, event):
         'Handles piece being dragged across board'
@@ -170,21 +178,38 @@ class Pawn(Piece):
             
         return False # Unreachable square
 
-    def promote(self, piece_class):
-        'Promotes a pawn instance to another piece; takes piece class as argument'
-
-        pass
-
     def adjust(self):
         'Adjusts some attributes after a successful move'
 
         if Pawn.operators_dictionary[Piece.piece_opposites[self.side]](int(self.position[1]), 4) == 4: # Pawn has reached end of the board
-                print('Promote pawn')
+                self.promote() # Promote the pawn
 
         if self.position == f'{self.old_position[0]}{self.operator_fun(int(self.old_position[1]), 2)}': # If pawn pushed twice
             self.en_passant = True # En passant enabled for the pawn
 
         self.moved = True # Piece has been moved
+
+    def promote(self):
+        'Promotes a pawn instance to another piece; takes piece class as argument'
+
+        self.parent.chess_board.config(state=tkinter.DISABLED) # Disables the canvas
+        self.parent.promoted_pawn = self # Indicates which pawn is going to be promoted by storing it as an attribute of the Game class
+
+        for button in self.parent.promotion_button_list:
+            button.config(state=tkinter.NORMAL) # Enables all the promotion buttons
+        
+    def selected_promote(self, piece_class):
+        'Secondary method to promote() that takes class of piece to promote pawn to as argument'
+
+        self.parent.chess_board.config(state=tkinter.NORMAL) # Enables the canvas
+        
+        for button in self.parent.promotion_button_list:
+            button.config(state=tkinter.DISABLED) # Disables all the promotion buttons
+
+        self.canvas.delete(self.text_object_id) # Deletes itself from board
+        Piece.piece_instances.remove(self) # Removes itself from list of pieces on the board        
+
+        piece_class(self.side, self.position, self.parent) # Creates new piece by promoting the pawn
 
     @staticmethod
     def disable_en_passant():

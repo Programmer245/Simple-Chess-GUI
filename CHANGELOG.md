@@ -359,3 +359,21 @@ ChangeLog:
 - Need to adjust color palate for GUI
 
 /UNSTABLE BUILD/
+
+***
+
+05/01/2021 - v0.7.1-alpha:
+
+*Added*
+
++ When instances of pieces are created, the parent widget is required as argument instead of the canvas
++ tkinter library now imported in piece_classes.py rather than main.pyw
++ Added promote pawn behavior
+
+
+*Pending*
+
+- Need to finish movement behavior for king
+- Need to adjust color palate for GUI
+
+/UNSTABLE BUILD/

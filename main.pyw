@@ -1,7 +1,5 @@
 '''Simple Chess Main Module'''
 
-import tkinter
-
 from piece_classes import * # Imports all the piece classes (including constants.py)
 
 from PIL import ImageTk, Image # Image processing library
@@ -66,10 +64,10 @@ class Game:
 
         ### ### PROMOTION BUTTONS LABEL FRAME
         self.promotion_buttons_frame = tkinter.LabelFrame(self.right_frame, text='Promotion') # Promotion button label frame containing all the promotion buttons
-        self.knight_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2654', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
-        self.bishop_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2657', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
-        self.rook_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2656', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
-        self.queen_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2655', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED)
+        self.knight_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u265E', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED, command=lambda: self.promoted_pawn.selected_promote(Knight))
+        self.bishop_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2657', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED, command=lambda: self.promoted_pawn.selected_promote(Bishop))
+        self.rook_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2656', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED, command=lambda: self.promoted_pawn.selected_promote(Rook))
+        self.queen_promotion_btn = tkinter.Button(self.promotion_buttons_frame, text='\u2655', font=('Helvetica', 15, 'bold'), state=tkinter.DISABLED, command=lambda: self.promoted_pawn.selected_promote(Queen))
 
         self.promotion_buttons_frame.grid(row=2, column=0, pady=(0,10))
         self.knight_promotion_btn.grid(row=0, column=0)
@@ -77,44 +75,46 @@ class Game:
         self.rook_promotion_btn.grid(row=1, column=0)
         self.queen_promotion_btn.grid(row=1, column=1)
 
+        self.promotion_button_list = [self.knight_promotion_btn, self.bishop_promotion_btn, self.rook_promotion_btn, self.queen_promotion_btn] # List of all promotion buttons for ease of use
+
     def __draw_board(self):
         'Draws the chess board'
 
         for row in range(8):
             for column in range(8):
                 if (row+column+1) % 2 == 0: # Draws alternating black squares
-                    self.chess_board.create_rectangle(SQUARE_SIZE*column, SQUARE_SIZE*row, SQUARE_SIZE*column + SQUARE_SIZE, SQUARE_SIZE*row + SQUARE_SIZE, fill='green', outline='') # Creates the squares 
+                    self.chess_board.create_rectangle(SQUARE_SIZE*column, SQUARE_SIZE*row, SQUARE_SIZE*column + SQUARE_SIZE, SQUARE_SIZE*row + SQUARE_SIZE, fill='lightgrey', outline='') # Creates the squares 
 
     def __create_pieces(self):
         'Creates all chess pieces'
 
         for i in range(8): # Creates the pawns
             position = f'{i}1'
-            Pawn('black', position, self.chess_board)
+            Pawn('black', position, self)
         for i in range(8):
             position = f'{i}6'
-            Pawn('white', position, self.chess_board)
+            Pawn('white', position, self)
         
-        Rook('black', '00', self.chess_board) # Creates the rooks 
-        Rook('black', '70', self.chess_board)
-        Rook('white', '07', self.chess_board)
-        Rook('white', '77', self.chess_board)
+        Rook('black', '00', self) # Creates the rooks 
+        Rook('black', '70', self)
+        Rook('white', '07', self)
+        Rook('white', '77', self)
 
-        Knight('black', '10', self.chess_board) # Creates the knights
-        Knight('black', '60', self.chess_board)
-        Knight('white', '17', self.chess_board)
-        Knight('white', '67', self.chess_board)
+        Knight('black', '10', self) # Creates the knights
+        Knight('black', '60', self)
+        Knight('white', '17', self)
+        Knight('white', '67', self)
 
-        Bishop('black', '20', self.chess_board) # Creates the bishops
-        Bishop('black', '50', self.chess_board)
-        Bishop('white', '27', self.chess_board)
-        Bishop('white', '57', self.chess_board)
+        Bishop('black', '20', self) # Creates the bishops
+        Bishop('black', '50', self)
+        Bishop('white', '27', self)
+        Bishop('white', '57', self)
 
-        Queen('black', '30', self.chess_board) # Creates the queens
-        Queen('white', '47', self.chess_board)
+        Queen('black', '30', self) # Creates the queens
+        Queen('white', '47', self)
         
-        King('black', '40', self.chess_board) # Creates the kings
-        King('white', '37', self.chess_board)
+        King('black', '40', self) # Creates the kings
+        King('white', '37', self)
 
     def __reset(self):
         'Resets the game'
