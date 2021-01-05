@@ -341,3 +341,21 @@ ChangeLog:
 - Need to update promote method for pawn
 
 /UNSTABLE BUILD/
+
+***
+
+05/01/2021 - v0.7-alpha:
+
+*Added*
+
++ Imported PIL library for image processing
++ Added several resources to resources directory
++ Added all widgets in frames
+
+*Pending*
+
+- Need to finish movement behavior for king
+- Need to update promote method for pawn
+- Need to adjust color palate for GUI
+
+/UNSTABLE BUILD/
