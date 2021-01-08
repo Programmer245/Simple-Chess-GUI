@@ -370,10 +370,27 @@ ChangeLog:
 + tkinter library now imported in piece_classes.py rather than main.pyw
 + Added promote pawn behavior
 
-
 *Pending*
 
 - Need to finish movement behavior for king
 - Need to adjust color palate for GUI
+
+/UNSTABLE BUILD/
+
+***
+
+08/01/2021 - v0.7.2-alpha:
+
+*Added*
+
++ Updated Rook behavior
++ Fixed reveal check logic
++ Updated King movement and functional behavior
+
+*Pending*
+
+- Need to adjust color palate for GUI
+- Need to add castling
+- Need to check if it is checkmate or draw
 
 /UNSTABLE BUILD/

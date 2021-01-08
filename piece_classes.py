@@ -130,6 +130,9 @@ class Piece:
                 pieces_copy.remove(return_value) # Removes the piece from the pieces_copy temporary environment
             if not King.checked(self.side, pieces_copy): # If reveal check does not occur value is returned
                 return return_value
+            else:
+                print('King is checked')
+                return False
         
 class Pawn(Piece):
     'Child class that creates instances of pawns'
@@ -239,10 +242,18 @@ class Rook(Piece):
                 for i in range(1, abs(vertical_diff)): # Finds every square on the appropriate column up to the target square
                     intermediate_pos = f'{initial[0]}{operator_fun(int(initial[1]), i)}'
 
+                    for piece in Piece.piece_instances: # Checks all pieces
+                        if piece != self and piece.position == intermediate_pos: # If any piece is in the way of bishop
+                            return False # Square is blocked and cannot be reached
+
             elif vertical_diff == 0: # If final square is in same row
                 operator_fun = operator.add if int(final[0]) > int(initial[0]) else operator.sub # Stores the appropriate operator depending on the circumstance
                 for i in range(1, abs(horizontal_diff)): # Finds every square on the appropriate row up to the target square
                     intermediate_pos = f'{operator_fun(int(initial[0]), i)}{initial[1]}'
+
+                    for piece in Piece.piece_instances: # Checks all pieces
+                        if piece != self and piece.position == intermediate_pos: # If any piece is in the way of bishop
+                            return False # Square is blocked and cannot be reached
 
             for piece in Piece.piece_instances: # Checks all the pieces
                     if piece != self and piece.position == final: # Square is blocked by another piece
@@ -346,7 +357,16 @@ class King(Piece):
         
         Takes initial and final square position as arguments'''
 
-        pass
+        if abs(int(final[0])-int(initial[0])) in (0, 1) and abs(int(final[1])-int(initial[1])) in (0, 1): # If final square is around king
+            for piece in Piece.piece_instances: # Checks all the pieces
+                if piece != self and piece.position == final: # Square is blocked by another piece
+                    if self.side == piece.side: # Square blocked by friendly piece
+                        return False
+                    else:
+                        return piece # Enemy piece can be captured
+            return True # Square is empty
+
+        return False # Unreachable square
 
     @staticmethod
     def checked(side, environment=Piece.piece_instances):
@@ -354,14 +374,15 @@ class King(Piece):
         
         Environment argument is list of pieces being examined. Default argument can be overwritten'''
 
-        return False # Temporary return False
-
         for piece in environment: 
             if piece.identifier == 'K' and piece.side == side: 
                 king_position = piece.position # Stores position of king
-                for piece in environment:
-                    if piece.identifier != 'K': # Piece must not be a king
-                        return_value = piece.in_range(piece.position, king.position)
-                        if isinstance(return_value, Piece): # If piece can 'capture' the king then it is in check
-                            return True
-                return False # King is not in range of any piece and is not checked
+
+        for piece in environment:
+            if side != piece.side: # Searches every enemy piece
+                if piece.in_range(piece.position, king_position): # If piece can 'capture' the king then it is in check
+                    print(piece.in_range(piece.position, king_position))
+                    print(piece.position, piece.identifier)
+                    return True
+        print('King is not checked')
+        return False # King is not in range of any piece and is not checked
