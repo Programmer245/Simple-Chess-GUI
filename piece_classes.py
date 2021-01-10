@@ -226,6 +226,7 @@ class Rook(Piece):
 
     def __init__(self, side, position, canvas):
         self.identifier = 'R' # Identifier used for chess notation and to assign a unicode sequence to each piece
+        self.moved = False # Flag indicating whether piece has moved
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
     def in_range(self, initial, final):
@@ -350,6 +351,7 @@ class King(Piece):
 
     def __init__(self, side, position, canvas):
         self.identifier = 'K' # Identifier used for chess notation and to assign a unicode sequence to each piece
+        self.moved = False # Flag indicating whether piece has moved
         super().__init__(side, position, canvas) # Inherits the parent class attributes
 
     def in_range(self, initial, final):
@@ -366,7 +368,127 @@ class King(Piece):
                         return piece # Enemy piece can be captured
             return True # Square is empty
 
+        elif abs(int(final[0])-int(initial[0])) == 2 and int(final[1])-int(initial[1]) == 0: # King tries to castle
+            if not self.moved and not self.checked(self.side, Piece.piece_instances): # If king hasn't moved and it is not in check
+
+                rooks = [] # List containing all the rooks that have not moved
+                for piece in Piece.piece_instances:
+                    if piece.identifier == 'R' and not piece.moved: # Looks for rooks that have not moved
+                        rooks.append(piece) # Appends the rook to the list of rooks
+
+                ### WHITE KING LOGIC
+
+                if self.side == 'white': 
+                    if self.position == '27': # White king tries to long castle
+                        self.castled_rook = None # No rook to castle with has been found
+                        for rook in rooks: # Looks through list of rooks
+                            if rook.position == '07' and self.side == rook.side: # If friendly rook's position is correct
+                                self.castled_rook = rook # Stores rook instance
+                        if not self.castled_rook: # No rook to castle with has been found
+                            return False
+
+                        for piece in Piece.piece_instances:
+                            if piece == self: # Skips itself
+                                continue
+                            elif piece.position == '17' or piece.position == '27' or piece.position == '37': # Piece is in the way of long castle
+                                print('Piece in the way of long castle')
+                                return False 
+                            elif self.side != piece.side and (piece.in_range(piece.position, '27') or piece.in_range(piece.position, '37')): # Piece threatens a square between long castle
+                                print('Piece threatens long castle')
+                                return False
+
+                    elif self.position == '67': # White king tries to short castle
+                        self.castled_rook = None # No rook to castle with has been found
+                        for rook in rooks: # Looks through list of rooks
+                            if rook.position == '77' and self.side == rook.side: # If friendly rook's position is correct
+                                self.castled_rook = rook # Stores rook instance
+                        if not self.castled_rook: # No rook to castle with has been found
+                            return False
+
+                        for piece in Piece.piece_instances:
+                            if piece == self: # Skips itself
+                                continue
+                            elif piece.position == '57' or piece.position == '67': # Piece is in the way of long castle
+                                print('Piece in the way')
+                                return False 
+                            elif self.side != piece.side and (piece.in_range(piece.position, '57') or piece.in_range(piece.position, '67')): # Piece threatens a square between long castle
+                                print('Piece threatens short castle')
+                                print(f'In the way at {piece.position}')
+                                return False
+
+                ### BLACK KING LOGIC
+
+                else: 
+                    if self.position == '20': # Black king tries to long castle
+                        self.castled_rook = None # No rook to castle with has been found
+                        for rook in rooks: # Looks through list of rooks
+                            if rook.position == '00' and self.side == rook.side: # If friendly rook's position is correct
+                                self.castled_rook = rook # Stores rook instance
+                        if not self.castled_rook: # No rook to castle with has been found
+                            return False
+
+                        for piece in Piece.piece_instances:
+                            if piece == self: # Skips itself
+                                continue
+                            elif piece.position == '10' or piece.position == '20' or piece.position == '30': # Piece is in the way of long castle
+                                print('Piece in the way of long castle')
+                                return False 
+                            elif self.side != piece.side and (piece.in_range(piece.position, '20') or piece.in_range(piece.position, '30')): # Piece threatens a square between long castle
+                                print('Piece threatens long castle')
+                                return False
+
+                    elif self.position == '60': # Black king tries to short castle
+                        self.castled_rook = None # No rook to castle with has been found
+                        for rook in rooks: # Looks through list of rooks
+                            if rook.position == '70' and self.side == rook.side: # If friendly rook's position is correct
+                                self.castled_rook = rook # Stores rook instance
+                        if not self.castled_rook: # No rook to castle with has been found
+                            return False
+
+                        for piece in Piece.piece_instances:
+                            if piece == self: # Skips itself
+                                continue
+                            elif piece.position == '50' or piece.position == '60': # Piece is in the way of long castle
+                                print('Piece in the way')
+                                return False 
+                            elif self.side != piece.side and (piece.in_range(piece.position, '50') or piece.in_range(piece.position, '60')): # Piece threatens a square between long castle
+                                print('Piece threatens short castle')
+                                print(f'In the way at {piece.position}')
+                                return False
+
+            pieces_copy = copy.copy(Piece.piece_instances) # Makes a copy of the piece instances
+
+            for piece in pieces_copy:
+                if piece.position == self.castled_rook.position and piece != self and self.side == piece.side and piece.identifier == 'R': # Searches for correct rook
+                    if self.position == '27': # White king long castle
+                        piece.position = '37' # Updates position of rook after castling
+                    elif self.position == '67': # White king short castle
+                        piece.position = '57' # Updates position of rook after castling
+                    elif self.position == '20': # Black king long castle
+                        piece.position = '30'
+                    elif self.position == '60': # Black king short castle
+                        piece.position = '50'
+
+            if not self.checked(self.side, pieces_copy): # If king will not be checked after castling, it is a valid move
+                print('Valid castling move')
+                return True
+
         return False # Unreachable square
+
+    def adjust(self):
+        'Adjusts some attributes after a successful move'
+
+        if abs(int(self.position[0])-int(self.old_position[0])) == 2 and int(self.position[1])-int(self.old_position[1]) == 0: # King has castled
+            if self.position == '27': # White king long castle
+                self.castled_rook.position = '37' # Updates position of rook after castling
+            elif self.position == '67': # White king short castle
+                self.castled_rook.position = '57' # Updates position of rook after castling
+            elif self.position == '20': # Black king long castle
+                self.castled_rook.position = '30'
+            elif self.position == '60': # Black king short castle
+                self.castled_rook.position = '50'
+
+            self.canvas.coords(self.castled_rook.text_object_id, (0.5+int(self.castled_rook.position[0]))*80, (0.5+int(self.castled_rook.position[1]))*80)
 
     @staticmethod
     def checked(side, environment=Piece.piece_instances):

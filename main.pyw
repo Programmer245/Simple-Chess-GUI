@@ -111,10 +111,10 @@ class Game:
         Bishop('white', '57', self)
 
         Queen('black', '30', self) # Creates the queens
-        Queen('white', '47', self)
+        Queen('white', '37', self)
         
         King('black', '40', self) # Creates the kings
-        King('white', '37', self)
+        King('white', '47', self)
 
     def __reset(self):
         'Resets the game'

@@ -394,3 +394,16 @@ ChangeLog:
 - Need to check if it is checkmate or draw
 
 /UNSTABLE BUILD/
+
+10/01/2021 - v0.7.3-alpha:
+
+*Added*
+
++ Added castling mechanic
+
+*Pending*
+
+- Need to adjust color palate for GUI
+- Need to check if it is checkmate or draw
+
+/UNSTABLE BUILD/
